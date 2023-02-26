@@ -1,24 +1,48 @@
 const std = @import("std");
-
+const r = @cImport({
+    @cInclude("raylib.h");
+    @cInclude("raymath.h");
+});
 pub fn main() !void {
-    // Prints to stderr (it's a shortcut based on `std.io.getStdErr()`)
-    std.debug.print("All your {s} are belong to us.\n", .{"codebase"});
+    // Initialization
+    //--------------------------------------------------------------------------------------
+    const screenWidth = 800;
+    const screenHeight = 450;
 
-    // stdout is for the actual output of your application, for example if you
-    // are implementing gzip, then only the compressed bytes should be sent to
-    // stdout, not any debugging messages.
-    const stdout_file = std.io.getStdOut().writer();
-    var bw = std.io.bufferedWriter(stdout_file);
-    const stdout = bw.writer();
+    r.InitWindow(screenWidth, screenHeight, "raylib [core] example - keyboard input");
 
-    try stdout.print("Run `zig build test` to run the tests.\n", .{});
+    var ballPosition: r.Vector2 = .{ .x = screenWidth / 2, .y = screenHeight / 2 };
 
-    try bw.flush(); // don't forget to flush!
-}
+    r.SetTargetFPS(60); // Set our game to run at 60 frames-per-second
+    //--------------------------------------------------------------------------------------
 
-test "simple test" {
-    var list = std.ArrayList(i32).init(std.testing.allocator);
-    defer list.deinit(); // try commenting this out and see if zig detects the memory leak!
-    try list.append(42);
-    try std.testing.expectEqual(@as(i32, 42), list.pop());
+    // Main game loop
+    while (!r.WindowShouldClose()) // Detect window close button or ESC key
+    {
+        // Update
+        //----------------------------------------------------------------------------------
+        if (r.IsKeyDown(r.KEY_RIGHT)) ballPosition.x += 2.0;
+        if (r.IsKeyDown(r.KEY_LEFT)) ballPosition.x -= 2.0;
+        if (r.IsKeyDown(r.KEY_UP)) ballPosition.y -= 2.0;
+        if (r.IsKeyDown(r.KEY_DOWN)) ballPosition.y += 2.0;
+        //----------------------------------------------------------------------------------
+
+        // Draw
+        //----------------------------------------------------------------------------------
+        r.BeginDrawing();
+
+        r.ClearBackground(r.RAYWHITE);
+
+        r.DrawText("move the ball with arrow keys", 10, 10, 20, r.DARKGRAY);
+
+        r.DrawCircleV(ballPosition, 50, r.MAROON);
+
+        r.EndDrawing();
+        //----------------------------------------------------------------------------------
+    }
+
+    // De-Initialization
+    //--------------------------------------------------------------------------------------
+    r.CloseWindow(); // Close window and OpenGL context
+    //--------------------------------------------------------------------------------------
 }
