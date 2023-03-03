@@ -1,8 +1,9 @@
 const std = @import("std");
-const r = @cImport({
-    @cInclude("raylib.h");
-    @cInclude("raymath.h");
-});
+const r = @import("raylib.zig");
+const player = @import("player.zig");
+const Animation = @import("animation.zig");
+var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+const ResourceManager = @import("resource_manager.zig");
 pub fn main() !void {
     // Initialization
     //--------------------------------------------------------------------------------------
@@ -11,20 +12,21 @@ pub fn main() !void {
 
     r.InitWindow(screenWidth, screenHeight, "raylib [core] example - keyboard input");
 
-    var ballPosition: r.Vector2 = .{ .x = screenWidth / 2, .y = screenHeight / 2 };
-
+    var ball: player.Player = .{ .position = .{ .x = screenWidth / 2, .y = screenHeight / 2 } };
+    const resourceManager = ResourceManager.ResourceManager.init();
     r.SetTargetFPS(60); // Set our game to run at 60 frames-per-second
-    //--------------------------------------------------------------------------------------
-
+    var animation = Animation.init(&resourceManager.playerWalkDown);
     // Main game loop
     while (!r.WindowShouldClose()) // Detect window close button or ESC key
     {
+        const dt = r.GetFrameTime();
+        animation.update(dt);
         // Update
         //----------------------------------------------------------------------------------
-        if (r.IsKeyDown(r.KEY_RIGHT)) ballPosition.x += 2.0;
-        if (r.IsKeyDown(r.KEY_LEFT)) ballPosition.x -= 2.0;
-        if (r.IsKeyDown(r.KEY_UP)) ballPosition.y -= 2.0;
-        if (r.IsKeyDown(r.KEY_DOWN)) ballPosition.y += 2.0;
+        if (r.IsKeyDown(r.KEY_RIGHT)) ball.position.x += 2.0;
+        if (r.IsKeyDown(r.KEY_LEFT)) ball.position.x -= 2.0;
+        if (r.IsKeyDown(r.KEY_UP)) ball.position.y -= 2.0;
+        if (r.IsKeyDown(r.KEY_DOWN)) ball.position.y += 2.0;
         //----------------------------------------------------------------------------------
 
         // Draw
@@ -32,10 +34,9 @@ pub fn main() !void {
         r.BeginDrawing();
 
         r.ClearBackground(r.RAYWHITE);
-
         r.DrawText("move the ball with arrow keys", 10, 10, 20, r.DARKGRAY);
 
-        r.DrawCircleV(ballPosition, 50, r.MAROON);
+        animation.render(ball.position);
 
         r.EndDrawing();
         //----------------------------------------------------------------------------------
@@ -45,4 +46,7 @@ pub fn main() !void {
     //--------------------------------------------------------------------------------------
     r.CloseWindow(); // Close window and OpenGL context
     //--------------------------------------------------------------------------------------
+}
+test {
+    std.testing.refAllDecls(@This());
 }
