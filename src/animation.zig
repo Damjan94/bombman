@@ -5,14 +5,15 @@ const assert = std.debug.assert;
 
 const Animation = @This();
 
-const ANIMATION_SPEED: f32 = 0.1;
+const DEFAULT_ANIMATION_SPEED = 0.5;
 
 textures: []const r.Texture,
 currentTextureIndex: u8 = 0,
 timeElapsed: f32 = 0,
+animationSpeed: f32,
 
 pub fn init(textures: []const r.Texture2D) Animation {
-    return .{ .textures = textures };
+    return .{ .textures = textures, .animationSpeed = DEFAULT_ANIMATION_SPEED / @intToFloat(f32, textures.len) };
 }
 
 pub fn currentTexture(self: *const Animation) r.Texture2D {
@@ -20,7 +21,7 @@ pub fn currentTexture(self: *const Animation) r.Texture2D {
 }
 pub fn update(self: *Animation, dt: f32) void {
     self.timeElapsed += dt;
-    if (!(self.timeElapsed > ANIMATION_SPEED)) {
+    if (!(self.timeElapsed > self.animationSpeed)) {
         return;
     }
     self.timeElapsed = 0;

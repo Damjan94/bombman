@@ -1,27 +1,30 @@
 const r = @import("raylib.zig");
 const std = @import("std");
-pub const ResourceManager = struct {
-    playerWalkDown: [3]r.Texture2D,
-    playerWalkLeft: [2]r.Texture2D,
-    playerWalkRight: [2]r.Texture2D,
-    playerWalkUp: [3]r.Texture2D,
-    pub fn init() ResourceManager {
-        return .{
-            .playerWalkDown = loadPlayerAnimationVertical("down"),
-            .playerWalkLeft = loadPlayerAnimationHorizontal("left"),
-            .playerWalkRight = loadPlayerAnimationHorizontal("right"),
-            .playerWalkUp = loadPlayerAnimationVertical("up"),
-        };
-    }
-};
+pub const ResourceManager = @This();
+
+playerStandStill: [1]r.Texture2D,
+playerWalkDown: [3]r.Texture2D,
+playerWalkLeft: [2]r.Texture2D,
+playerWalkRight: [2]r.Texture2D,
+playerWalkUp: [3]r.Texture2D,
+
+pub fn init() ResourceManager {
+    return .{
+        .playerStandStill = .{loadTexture(SPRITES_PATH ++ "player_down.png") catch unreachable},
+        .playerWalkDown = loadPlayerAnimationVertical("down"),
+        .playerWalkLeft = loadPlayerAnimationHorizontal("left"),
+        .playerWalkRight = loadPlayerAnimationHorizontal("right"),
+        .playerWalkUp = loadPlayerAnimationVertical("up"),
+    };
+}
 
 const ASSETS_PATH = "./assets/";
 const SPRITES_PATH = ASSETS_PATH ++ "sprites/";
 
-const playerBoxDown = r.Texture2D;
-const playerBoxLeft = r.Texture2D;
-const playerBoxRight = r.Texture2D;
-const playerBoxUp = r.Texture2D;
+// const playerBoxDown = r.Texture2D;
+// const playerBoxLeft = r.Texture2D;
+// const playerBoxRight = r.Texture2D;
+// const playerBoxUp = r.Texture2D;
 
 fn loadPlayerAnimationVertical(direction: []const u8) [3]r.Texture {
     var textures = [3]r.Texture2D{
