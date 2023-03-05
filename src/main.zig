@@ -1,10 +1,9 @@
 const std = @import("std");
-const r = @import("raylib.zig");
+const r = @import("raylib");
 const Player = @import("player.zig");
 const FrameInfo = @import("frame_info.zig");
-const Animation = @import("animation.zig");
 var gpa = std.heap.GeneralPurposeAllocator(.{}){};
-const ResourceManager = @import("resource_manager.zig");
+const ResourceManager = @import("resource/resource_manager.zig");
 pub fn main() !void {
     // Initialization
     //--------------------------------------------------------------------------------------
@@ -14,7 +13,7 @@ pub fn main() !void {
     r.InitWindow(screenWidth, screenHeight, "raylib [core] example - keyboard input");
 
     const resourceManager = ResourceManager.init();
-    var player = Player.init(&resourceManager);
+    var player = Player.init(&resourceManager.playerSprites);
     r.SetTargetFPS(60); // Set our game to run at 60 frames-per-second
     // Main game loop
     while (!r.WindowShouldClose()) // Detect window close button or ESC key

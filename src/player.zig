@@ -1,9 +1,9 @@
 const std = @import("std");
 const t = std.testing;
 const FrameInfo = @import("frame_info.zig");
-const r = @import("raylib.zig");
+const r = @import("raylib");
 const Animation = @import("animation.zig");
-const ResourceManager = @import("resource_manager.zig");
+const PlayerSpriteResourceManager = @import("resource/player_sprite_resource_manager.zig");
 const Player = @This();
 
 const AnimationArray = [@typeInfo(MoveDirection).Enum.fields.len]Animation;
@@ -53,11 +53,11 @@ pub fn render(self: *const Player) void {
     self.activeAnimation.render(self.position);
 }
 
-pub fn init(resourceManager: *const ResourceManager) Player {
+pub fn init(resourceManager: *const PlayerSpriteResourceManager) Player {
     return Player{ .position = r.Vector2{ .x = 0, .y = 0 }, .velocity = .{ .x = 0, .y = 0 }, .animation = getAllAnimations(resourceManager) };
 }
 
-fn getAllAnimations(resourceManager: *const ResourceManager) AnimationArray {
+fn getAllAnimations(resourceManager: *const PlayerSpriteResourceManager) AnimationArray {
     return AnimationArray{
         Animation.init(&resourceManager.playerStandStill),
         Animation.init(&resourceManager.playerWalkDown),

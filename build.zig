@@ -29,13 +29,14 @@ pub fn build(b: *std.build.Builder) void {
     const optimize = b.standardOptimizeOption(.{});
 
     const raylib = addRaylib(b, target, optimize);
-
+    const raylibModule = b.createModule(.{ .source_file = std.build.FileSource.relative("src/raylib.zig") });
     const exe = b.addExecutable(.{
         .name = "bombman",
         .root_source_file = .{ .path = "src/main.zig" },
         .target = target,
         .optimize = optimize,
     });
+    exe.addModule("raylib", raylibModule);
     exe.linkLibrary(raylib);
     exe.addIncludePath("raylib/src");
     exe.install();
