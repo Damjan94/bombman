@@ -3,24 +3,6 @@ const std = @import("std");
 // we build raylib here, but this does take care of everything we need to do for this.
 const addRaylib = @import("raylib/src/build.zig").addRaylib;
 
-// setTarget() must have been called on step before calling this
-// fn addRaylibDependencies(step: *std.build.LibExeObjStep, raylib: *std.build.LibExeObjStep) void {
-//     step.addIncludePath("raylib/src");
-
-//     // raylib's build.zig file specifies all libraries this executable must be
-//     // linked with, so let's copy them from there.
-//     for (raylib.link_objects.items) |o| {
-//         if (o == .system_lib) {
-//             step.linkSystemLibrary(o.system_lib.name);
-//         }
-//     }
-//     if (step.target.isWindows()) {
-//         step.addObjectFile("zig-out/lib/raylib.lib");
-//     } else {
-//         step.addObjectFile("zig-out/lib/libraylib.a");
-//     }
-// }
-
 pub fn build(b: *std.build.Builder) void {
     const target = b.standardTargetOptions(.{});
     // Standard optimization options allow the person running `zig build` to select
@@ -56,6 +38,7 @@ pub fn build(b: *std.build.Builder) void {
         .target = target,
         .optimize = optimize,
     });
+    exe_tests.addModule("raylib", raylibModule);
     exe_tests.linkLibrary(raylib);
     exe_tests.addIncludePath("raylib/src");
 
