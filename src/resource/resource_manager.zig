@@ -2,14 +2,18 @@ const r = @import("raylib");
 const std = @import("std");
 const PlayerSpriteResourceManager = @import("player_sprite_resource_manager.zig");
 const MapSpriteResourceManager = @import("map_sprite_resource_manager.zig");
+const BombSpriteResourceManager = @import("bomb_sprite_resource_manager.zig");
 pub const ResourceManager = @This();
 
 playerSprites: PlayerSpriteResourceManager,
 mapSprites: MapSpriteResourceManager,
+bombSprites: BombSpriteResourceManager,
+
 pub fn init() ResourceManager {
     return .{
         .playerSprites = PlayerSpriteResourceManager.init(),
         .mapSprites = MapSpriteResourceManager.init(),
+        .bombSprites = BombSpriteResourceManager.init(),
     };
 }
 

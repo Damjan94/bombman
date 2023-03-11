@@ -1,31 +1,50 @@
 const r = @import("raylib");
+const std = @import("std");
 const MapSpriteResourceManager = @import("resource/map_sprite_resource_manager.zig");
 pub const Map = @This();
-
-const ARENA_SIZE = 5;
-
-const map = [ARENA_SIZE]*const [5:0]u8{ "wwwww", "w b w", "w b w", "w w w", "wwwww" };
+pub const MapSize = 5;
 
 texture: *const MapSpriteResourceManager.MapTexture,
-
-pub fn init(resourceManager: *const MapSpriteResourceManager, mapStyle: u8) Map {
-    return Map{ .texture = &(resourceManager.levelTextures[mapStyle]) };
+entities: std.ArrayList(Entity),
+pub fn init(allocator: std.mem.Allocator, texture: *const MapSpriteResourceManager.MapTexture, map: *const [MapSize]*const [MapSize:0]u8) Map {
+    return Map{ .texture = texture, .entities = createEntities(allocator, map) };
 }
-const HEIGHT = 52;
+const HEIGHT = 45;
 const WIDTH = 50;
 
-pub fn render(self: *const Map) void {
+fn createEntities(allocator: std.mem.Allocator, map: *const [5]*const [5:0]u8) std.ArrayList(Entity) {
+    var entities = std.ArrayList(Entity).init(allocator);
     for (map, 0..) |line, y| {
         for (line, 0..) |char, x| {
-            const x_c = @intCast(c_int, x);
-            const y_c = @intCast(c_int, y);
-            r.DrawTexture(self.texture.floor, x_c * WIDTH, y_c * HEIGHT, r.RAYWHITE);
             switch (char) {
-                'w' => r.DrawTexture(self.texture.wall, x_c * WIDTH, y_c * HEIGHT, r.RAYWHITE),
-                'b' => r.DrawTexture(self.texture.block, x_c * WIDTH, y_c * HEIGHT, r.RAYWHITE),
-                ' ' => continue, //r.DrawTexture(self.texture.floor, x_c * WIDTH, y_c * HEIGHT, r.RAYWHITE),
+                'w' => entities.append(.{ .position = .{ .x = @intToFloat(f32, x * WIDTH), .y = @intToFloat(f32, y * HEIGHT) }, .entityType = EntityType.wall }) catch unreachable,
+                'b' => entities.append(.{ .position = .{ .x = @intToFloat(f32, x * WIDTH), .y = @intToFloat(f32, y * HEIGHT) }, .entityType = EntityType.block }) catch unreachable,
+                ' ' => continue,
                 else => unreachable,
             }
+        }
+    }
+    return entities;
+}
+
+const Entity = struct { position: r.Vector2, entityType: EntityType };
+const EntityType = enum { wall, block };
+
+pub fn update(self: *@This(), dt: f32) void {
+    _ = self;
+    _ = dt;
+}
+
+pub fn render(self: *const Map) void {
+    for (0..MapSize) |y| {
+        for (0..MapSize) |x| {
+            r.DrawTexture(self.texture.floor, @intCast(c_int, x * WIDTH), @intCast(c_int, y * HEIGHT), r.RAYWHITE);
+        }
+    }
+    for (self.entities.items) |entity| {
+        switch (entity.entityType) {
+            EntityType.wall => r.DrawTextureV(self.texture.wall, entity.position, r.RAYWHITE),
+            EntityType.block => r.DrawTextureV(self.texture.block, entity.position, r.RAYWHITE),
         }
     }
 }
