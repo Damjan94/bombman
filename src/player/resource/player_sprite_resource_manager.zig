@@ -1,5 +1,5 @@
 const std = @import("std");
-const ResourceManager = @import("resource_manager.zig");
+const ResourceManager = @import("resource");
 const r = @import("raylib");
 pub const PlayerSpriteResourceManager = @This();
 const PlayerStandStill = [1]r.Texture2D;

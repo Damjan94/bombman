@@ -1,7 +1,6 @@
 const r = @import("raylib");
 const std = @import("std");
 const t = std.testing;
-const assert = std.debug.assert;
 
 const Animation = @This();
 

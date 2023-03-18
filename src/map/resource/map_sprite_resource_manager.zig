@@ -1,12 +1,11 @@
 const r = @import("raylib");
-const ResourceManager = @import("resource_manager.zig");
-pub const MapSpriteResourceManager = @This();
+const ResourceManager = @import("resource");
 
 pub const MapTexture = struct { floor: r.Texture2D, wall: r.Texture2D, block: r.Texture2D };
 const MapTextures = [7]MapTexture;
 levelTextures: MapTextures,
 
-pub fn init() MapSpriteResourceManager {
+pub fn init() @This() {
     return .{ .levelTextures = .{
         loadMapTexture(1),
         loadMapTexture(2),

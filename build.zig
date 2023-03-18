@@ -3,7 +3,11 @@ const std = @import("std");
 // we build raylib here, but this does take care of everything we need to do for this.
 const addRaylib = @import("raylib/src/build.zig").addRaylib;
 
-pub fn build(b: *std.build.Builder) void {
+fn createModule(b: *std.build.Builder, relativePath: []const u8) *std.build.Module {
+    return b.createModule(.{ .source_file = std.build.FileSource.relative(relativePath) });
+}
+
+pub fn build(b: *std.build.Builder) !void {
     const target = b.standardTargetOptions(.{});
     // Standard optimization options allow the person running `zig build` to select
     // between Debug, ReleaseSafe, ReleaseFast, and ReleaseSmall. Here we do not
@@ -11,7 +15,11 @@ pub fn build(b: *std.build.Builder) void {
     const optimize = b.standardOptimizeOption(.{});
 
     const raylib = addRaylib(b, target, optimize);
-    const raylibModule = b.createModule(.{ .source_file = std.build.FileSource.relative("src/raylib.zig") });
+    const raylibModule = createModule(b, "src/raylib.zig");
+    const animationModule = createModule(b, "src/animation.zig");
+    try animationModule.dependencies.put("raylib", raylibModule);
+    const resourceModule = createModule(b, "src/resource/resource_manager.zig");
+    try resourceModule.dependencies.put("raylib", raylibModule);
     const exe = b.addExecutable(.{
         .name = "bombman",
         .root_source_file = .{ .path = "src/main.zig" },
@@ -19,6 +27,8 @@ pub fn build(b: *std.build.Builder) void {
         .optimize = optimize,
     });
     exe.addModule("raylib", raylibModule);
+    exe.addModule("animation", animationModule);
+    exe.addModule("resource", resourceModule);
     exe.linkLibrary(raylib);
     exe.addIncludePath("raylib/src");
     exe.install();

@@ -1,4 +1,4 @@
-const ResourceManager = @import("resource_manager.zig");
+const ResourceManager = @import("resource");
 const r = @import("raylib");
 
 const BombTextures = [3]r.Texture2D;
