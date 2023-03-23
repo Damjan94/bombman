@@ -1,4 +1,5 @@
 const Animation = @import("animation");
+const std = @import("std");
 const r = @import("raylib");
 burningAnimation: Animation,
 burnTime: f32 = 0,
@@ -23,4 +24,15 @@ pub fn shouldExplode(self: *const @This()) bool {
 
 pub fn render(self: *const @This()) void {
     self.burningAnimation.render(self.position);
+}
+
+test "shouldNotExplode" {
+    var bomb = std.mem.zeroes(@This());
+    bomb.burnTime = FUSE_TIME_SECONDS - 1;
+    try std.testing.expectEqual(false, bomb.shouldExplode());
+}
+test "shouldExplode" {
+    var bomb = std.mem.zeroes(@This());
+    bomb.burnTime = FUSE_TIME_SECONDS + 1;
+    try std.testing.expectEqual(true, bomb.shouldExplode());
 }

@@ -49,6 +49,8 @@ pub fn build(b: *std.build.Builder) !void {
         .optimize = optimize,
     });
     exe_tests.addModule("raylib", raylibModule);
+    exe_tests.addModule("animation", animationModule);
+    exe_tests.addModule("resource", resourceModule);
     exe_tests.linkLibrary(raylib);
     exe_tests.addIncludePath("raylib/src");
 
