@@ -6,16 +6,19 @@ const Animation = @import("animation");
 const BombFactory = @import("bomb/bomb_factory.zig");
 const BombManager = @import("bomb/bomb_manager.zig");
 const Bomb = @import("bomb/bomb.zig");
+const Explosions = @import("explosion/explosion.zig");
 var gpa = std.heap.GeneralPurposeAllocator(.{}){};
 
 const BombSpriteResourceManager = @import("bomb/resource/bomb_sprite_resource_manager.zig");
 const PlayerSpriteResourceManager = @import("player/resource/player_sprite_resource_manager.zig");
 const MapSpriteResourceManager = @import("map/resource/map_sprite_resource_manager.zig");
+const ExplosionResourceManager = @import("explosion/resource/explosion_resource_manager.zig");
 
 const mapLayout = [_]*const [5:0]u8{ "wwwww", "w   w", "w   w", "w b w", "wwwww" };
 fn startExplosion(position: r.Vector2) void {
-    std.debug.print("{}\n", .{position});
+    explosions.?.startExplosion(position);
 }
+var explosions: ?Explosions = null;
 var bombManager: ?BombManager = null;
 fn dropBomb(position: r.Vector2) void {
     bombManager.?.placeBomb(position);
@@ -52,6 +55,10 @@ pub fn main() !void {
     const bombSpriteResourceManager = BombSpriteResourceManager.init();
     const playerSpriteResourceManager = PlayerSpriteResourceManager.init();
     const mapSpriteResourceManager = MapSpriteResourceManager.init();
+    const explosionResourceManager = ExplosionResourceManager.init();
+
+    explosions = Explosions.init(gpa.allocator(), &explosionResourceManager);
+
     var player = Player.init(createPlayerAnimations(&playerSpriteResourceManager), dropBomb, decideMovement);
     var map = Map.init(gpa.allocator(), &(mapSpriteResourceManager.levelTextures[2]), &mapLayout);
 
@@ -69,6 +76,7 @@ pub fn main() !void {
         map.update(dt);
         player.update(dt);
         bombManager.?.update(dt, startExplosion);
+        explosions.?.update(dt, gpa.allocator());
         // Draw
         //----------------------------------------------------------------------------------
         r.BeginDrawing();
@@ -78,6 +86,7 @@ pub fn main() !void {
         map.render();
         bombManager.?.render();
         player.render();
+        explosions.?.render();
 
         r.EndDrawing();
         //----------------------------------------------------------------------------------
